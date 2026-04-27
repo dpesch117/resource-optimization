@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shippingservice
+  namespace: hipster-shop
+  annotations:
+    dt.owner: "hipster-shop"
+    resource-optimization.dynatrace.com/enabled: "true"
+    resource-optimization.dynatrace.com/github-repo: "github.com/Observe-Resolve/resource-optimization"
+    resource-optimization.dynatrace.com/github-path: "hipster-shop/shippingservice.yaml"
+    resource-optimization.dynatrace.com/github-branch: "master"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shippingservice
+  template:
+    metadata:
+      labels:
+        app: shippingservice
+      annotations:
+        dt.owner: "hipster-shop"
+        resource-optimization.dynatrace.com/enabled: "true"
+        resource-optimization.dynatrace.com/github-repo: "github.com/Observe-Resolve/resource-optimization"
+        resource-optimization.dynatrace.com/github-path: "hipster-shop/shippingservice.yaml"
+        resource-optimization.dynatrace.com/github-branch: "master"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: us-central1-docker.pkg.dev/google-samples/microservices-demo/shippingservice:v0.10.4
+        ports:
+        - containerPort: 50051
+          name: grpc
+        env:
+        - name: PORT
+          value: "50051"
+        - name: DISABLE_PROFILER
+          value: "1"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 400m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        livenessProbe:
+          grpc:
+            port: 50051
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          grpc:
+            port: 50051
+          initialDelaySeconds: 5
+          periodSeconds: 10

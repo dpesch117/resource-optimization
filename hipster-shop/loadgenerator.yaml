@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+  namespace: hipster-shop
+  annotations:
+    dt.owner: "hipster-shop"
+    resource-optimization.dynatrace.com/enabled: "true"
+    resource-optimization.dynatrace.com/github-repo: "github.com/Observe-Resolve/resource-optimization"
+    resource-optimization.dynatrace.com/github-path: "hipster-shop/loadgenerator.yaml"
+    resource-optimization.dynatrace.com/github-branch: "master"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgenerator
+  template:
+    metadata:
+      labels:
+        app: loadgenerator
+      annotations:
+        dt.owner: "hipster-shop"
+        resource-optimization.dynatrace.com/enabled: "true"
+        resource-optimization.dynatrace.com/github-repo: "github.com/Observe-Resolve/resource-optimization"
+        resource-optimization.dynatrace.com/github-path: "hipster-shop/loadgenerator.yaml"
+        resource-optimization.dynatrace.com/github-branch: "master"
+    spec:
+      terminationGracePeriodSeconds: 5
+      initContainers:
+      - name: wait-for-frontend
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -z frontend 80; do echo waiting for frontend; sleep 2; done']
+      containers:
+      - name: main
+        image: us-central1-docker.pkg.dev/google-samples/microservices-demo/loadgenerator:v0.10.4
+        env:
+        - name: FRONTEND_ADDR
+          value: "frontend:80"
+        - name: USERS
+          value: "10"
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+          limits:
+            cpu: 600m
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true

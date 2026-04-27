@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkoutservice
+  namespace: hipster-shop
+  annotations:
+    dt.owner: "hipster-shop"
+    resource-optimization.dynatrace.com/enabled: "true"
+    resource-optimization.dynatrace.com/github-repo: "github.com/Observe-Resolve/resource-optimization"
+    resource-optimization.dynatrace.com/github-path: "hipster-shop/checkoutservice.yaml"
+    resource-optimization.dynatrace.com/github-branch: "master"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: checkoutservice
+  template:
+    metadata:
+      labels:
+        app: checkoutservice
+      annotations:
+        dt.owner: "hipster-shop"
+        resource-optimization.dynatrace.com/enabled: "true"
+        resource-optimization.dynatrace.com/github-repo: "github.com/Observe-Resolve/resource-optimization"
+        resource-optimization.dynatrace.com/github-path: "hipster-shop/checkoutservice.yaml"
+        resource-optimization.dynatrace.com/github-branch: "master"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: us-central1-docker.pkg.dev/google-samples/microservices-demo/checkoutservice:v0.10.4
+        ports:
+        - containerPort: 5050
+          name: grpc
+        env:
+        - name: PORT
+          value: "5050"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "productcatalogservice:3550"
+        - name: SHIPPING_SERVICE_ADDR
+          value: "shippingservice:50051"
+        - name: PAYMENT_SERVICE_ADDR
+          value: "paymentservice:50051"
+        - name: EMAIL_SERVICE_ADDR
+          value: "emailservice:8080"
+        - name: CURRENCY_SERVICE_ADDR
+          value: "currencyservice:7000"
+        - name: CART_SERVICE_ADDR
+          value: "cartservice:7070"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 400m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        livenessProbe:
+          grpc:
+            port: 5050
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          grpc:
+            port: 5050
+          initialDelaySeconds: 5
+          periodSeconds: 10
