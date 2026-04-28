@@ -27,30 +27,30 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: server
-        image: us-central1-docker.pkg.dev/google-samples/microservices-demo/adservice:v0.10.4
-        ports:
-        - containerPort: 9555
-          name: grpc
-        env:
-        - name: PORT
-          value: "9555"
-        resources:
-          requests:
-            cpu: 500m
-            memory: 1Gi
-          limits:
-            cpu: 1000m
-            memory: 2Gi
-        securityContext:
-          allowPrivilegeEscalation: false
-        livenessProbe:
-          grpc:
-            port: 9555
-          initialDelaySeconds: 20
-          periodSeconds: 10
-        readinessProbe:
-          grpc:
-            port: 9555
-          initialDelaySeconds: 20
-          periodSeconds: 10
+        - name: server
+          image: us-central1-docker.pkg.dev/google-samples/microservices-demo/adservice:v0.10.4
+          ports:
+            - containerPort: 9555
+              name: grpc
+          env:
+            - name: PORT
+              value: "9555"
+          resources:
+            requests:
+              cpu: 8939m
+              memory: 1Gi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+          livenessProbe:
+            grpc:
+              port: 9555
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            grpc:
+              port: 9555
+            initialDelaySeconds: 20
+            periodSeconds: 10
